@@ -44,5 +44,14 @@ pipeline.addStage(devWorkloadStage);
 const deployWorkflow = pipeline.workflowFile;
 
 deployWorkflow.patch(JsonPatch.replace("/jobs/Build-Build/steps/0/uses", "actions/checkout@v6"));
+deployWorkflow.patch(
+  JsonPatch.add("/jobs/Build-Build/steps/1", {
+    uses: "actions/setup-node@v6",
+    with: {
+      "node-version": "22.14.0",
+      cache: "yarn",
+    },
+  }),
+);
 
 app.synth();
