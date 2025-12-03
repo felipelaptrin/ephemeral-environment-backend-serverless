@@ -19,7 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - name: Use NodeJS v22
+        uses: actions/setup-node@v6
         with:
           node-version: 22.14.0
           cache: yarn
@@ -27,6 +28,7 @@ jobs:
         run: |-
           yarn install
           yarn build
+          yarn synth
       - name: Upload cdk.out
         uses: actions/upload-artifact@v4
         with:

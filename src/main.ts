@@ -12,7 +12,7 @@ const app = new cdk.App();
 
 const pipeline = new GitHubWorkflow(app, "Pipeline", {
   synth: new ShellStep("Build", {
-    commands: ["yarn install", "yarn build"],
+    commands: ["yarn install", "yarn build", "yarn synth"],
   }),
   awsCreds: AwsCredentials.fromOpenIdConnect({
     gitHubActionRoleArn: `arn:aws:iam::${Accounts.Development}:role/GitHubActions`, // This Role already exists in my account
@@ -46,6 +46,7 @@ const deployWorkflow = pipeline.workflowFile;
 deployWorkflow.patch(JsonPatch.replace("/jobs/Build-Build/steps/0/uses", "actions/checkout@v6"));
 deployWorkflow.patch(
   JsonPatch.add("/jobs/Build-Build/steps/1", {
+    name: "Use NodeJS v22",
     uses: "actions/setup-node@v6",
     with: {
       "node-version": "22.14.0",
