@@ -11,19 +11,21 @@
     "synth": "cdk synth",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "prettier": "prettier --check src/",
-    "prettier:fix": "prettier --write src/",
+    "prettier": "prettier --check src/ test/",
+    "prettier:fix": "prettier --write src/ test/",
     "test": "jest",
     "test:fix": "jest --updateSnapshot"
   },
   "dependencies": {
     "aws-cdk": "^2.1031.2",
     "aws-cdk-lib": "^2.227.0",
+    "cdk-pipelines-github": "^0.4.133",
     "constructs": "^10.4.3",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.0",
     "eslint": "^9.39.1",
@@ -35,7 +37,18 @@
     "typescript-eslint": "^8.46.3"
   },
   "prettier": {
-    "printWidth": 120
+    "printWidth": 120,
+    "plugins": [
+      "@trivago/prettier-plugin-sort-imports"
+    ],
+    "importOrder": [
+      "^@core/(.*)$",
+      "^@server/(.*)$",
+      "^@ui/(.*)$",
+      "^[./]"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true
   },
   "engines": {
     "npm": "please-use-yarn",

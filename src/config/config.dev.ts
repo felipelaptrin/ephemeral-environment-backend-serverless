@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+
 import { Accounts, Config } from "./types";
 
 export const config: Config = {

@@ -1,14 +1,15 @@
 import * as cdk from "aws-cdk-lib";
-import { Construct } from "constructs";
-import { Config } from "../config/types";
+import * as apiGateway from "aws-cdk-lib/aws-apigateway";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as ecr from "aws-cdk-lib/aws-ecr";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { PublicHostedZone } from "aws-cdk-lib/aws-route53";
 import * as targets from "aws-cdk-lib/aws-route53-targets";
-import * as ecr from "aws-cdk-lib/aws-ecr";
+import { Construct } from "constructs";
+
+import { Config } from "../config/types";
 import { buildAppUrl } from "../helpers/url-builder";
-import * as lambda from "aws-cdk-lib/aws-lambda";
-import * as apiGateway from "aws-cdk-lib/aws-apigateway";
 
 export interface WorkloadStackProps extends cdk.StackProps {
   config: Config;
