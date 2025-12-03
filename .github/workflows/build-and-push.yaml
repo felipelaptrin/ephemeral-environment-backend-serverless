@@ -19,5 +19,6 @@ jobs:
       - name: Build and Push to Dev Environment
         uses: ./.github/actions/build-and-push
         with:
+          ecr_repository_name: backend
           working_directory: api
           aws_iam_role_oidc_arn: arn:aws:iam::937168356724:role/GitHubActions
