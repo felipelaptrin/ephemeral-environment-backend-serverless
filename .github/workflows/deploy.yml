@@ -18,7 +18,7 @@ jobs:
     env: {}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Build
         run: |-
           yarn install
@@ -53,7 +53,7 @@ jobs:
           aws-region: us-west-2
           role-duration-seconds: 1800
           role-skip-session-tagging: true
-          role-to-assume: arn:aws:iam::937168356724:role/GitHubActionRole
+          role-to-assume: arn:aws:iam::937168356724:role/GitHubActions
       - id: Publish
         name: Publish Assets-FileAsset1
         run: /bin/bash
@@ -82,7 +82,7 @@ jobs:
           aws-region: us-west-2
           role-duration-seconds: 1800
           role-skip-session-tagging: true
-          role-to-assume: arn:aws:iam::937168356724:role/GitHubActionRole
+          role-to-assume: arn:aws:iam::937168356724:role/GitHubActions
       - id: Publish
         name: Publish Assets-FileAsset2
         run: /bin/bash
@@ -103,7 +103,7 @@ jobs:
           aws-region: us-east-1
           role-duration-seconds: 1800
           role-skip-session-tagging: true
-          role-to-assume: arn:aws:iam::937168356724:role/GitHubActionRole
+          role-to-assume: arn:aws:iam::937168356724:role/GitHubActions
       - name: Assume CDK Deploy Role
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -140,7 +140,7 @@ jobs:
           aws-region: us-east-1
           role-duration-seconds: 1800
           role-skip-session-tagging: true
-          role-to-assume: arn:aws:iam::937168356724:role/GitHubActionRole
+          role-to-assume: arn:aws:iam::937168356724:role/GitHubActions
       - name: Assume CDK Deploy Role
         uses: aws-actions/configure-aws-credentials@v4
         with:

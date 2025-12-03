@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { ShellStep } from "aws-cdk-lib/pipelines";
-import { AwsCredentials, GitHubWorkflow } from "cdk-pipelines-github";
+import { AwsCredentials, GitHubWorkflow, JsonPatch } from "cdk-pipelines-github";
 import { Construct } from "constructs";
 
 import { devConfig } from "./config";
@@ -40,5 +40,9 @@ const devWorkloadStage = new WorkloadPipelineStage(app, "DevWorkloadStage", devC
 
 pipeline.addStage(devAssetsStage);
 pipeline.addStage(devWorkloadStage);
+
+const deployWorkflow = pipeline.workflowFile;
+
+deployWorkflow.patch(JsonPatch.replace("/jobs/Build-Build/steps/0/uses", "actions/checkout@v6"));
 
 app.synth();
