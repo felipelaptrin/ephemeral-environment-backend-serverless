@@ -1,0 +1,19 @@
+name: deploy
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  Build-And-Push-To-Dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build and Push to Dev Environment
+        uses: ./.github/actions/build-and-push
+        with:
+          working_directory: api
+          aws_iam_role_oidc_arn: arn:aws:iam::937168356724:role/GitHubActions
