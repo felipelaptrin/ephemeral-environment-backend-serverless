@@ -61,5 +61,11 @@ ephemeralDeployWorkflow.patch(JsonPatch.replace("/jobs/Build-Build/steps/0/uses"
 ephemeralDeployWorkflow.patch(JsonPatch.add("/jobs/Build-Build/steps/1", installNodeJs()));
 ephemeralDeployWorkflow.patch(JsonPatch.add("/on", setEphemeralWorkflowTriggers()));
 ephemeralDeployWorkflow.patch(JsonPatch.add("/env", setEphemeralGlobalEnvironmentVariables()));
+ephemeralDeployWorkflow.patch(
+  JsonPatch.replace(
+    "/jobs/EphemeralStage-EphemeralEnvironment-Deploy/steps/2/with/name",
+    "EphemeralStage-EphemeralEnvironment-${{ inputs.pullRequest }}",
+  ),
+);
 
 app.synth();

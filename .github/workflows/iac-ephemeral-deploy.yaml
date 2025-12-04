@@ -102,7 +102,7 @@ jobs:
       - id: Deploy
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: EphemeralStage-EphemeralEnvironment
+          name: EphemeralStage-EphemeralEnvironment-${{ inputs.pullRequest }}
           template: https://cdk-hnb659fds-assets-937168356724-us-east-1.s3.us-east-1.amazonaws.com/${{
             needs.Assets-FileAsset1.outputs.asset-hash }}.json
           no-fail-on-empty-changeset: "1"
