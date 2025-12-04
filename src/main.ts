@@ -5,8 +5,7 @@ import { AwsCredentials, GitHubWorkflow, JsonPatch } from "cdk-pipelines-github"
 import { devConfig } from "./config";
 import { Accounts } from "./config/types";
 import { AssetsPipelineStage, WorkloadPipelineStage } from "./pipelines/pipelines";
-
-// import { EphemeralStack } from "./stack/ephemeral";
+import { EphemeralStack } from "./stack/ephemeral";
 
 const app = new cdk.App();
 
@@ -42,15 +41,15 @@ deployWorkflow.patch(
   }),
 );
 
-// // Ephemeral Environment
-// const pullRequest = process.env["PULL_REQUEST"] ?? "";
-// const apiGatewayId = process.env["API_GATEWAY_ID"]!;
-// const rootApiGatewayResourceId = process.env["ROOT_API_GATEWAY_RESOURCE_ID"]!;
+// Ephemeral Environment
+const pullRequest = process.env["PULL_REQUEST"] ?? "";
+const apiGatewayId = process.env["API_GATEWAY_ID"]!;
+const rootApiGatewayResourceId = process.env["ROOT_API_GATEWAY_RESOURCE_ID"]!;
 
-// new EphemeralStack(app, `EphemeralEnvironment${pullRequest}`, {
-//   pullRequest,
-//   rootApiGatewayResourceId,
-//   apiGatewayId,
-// });
+new EphemeralStack(app, `EphemeralEnvironment${pullRequest}`, {
+  pullRequest,
+  rootApiGatewayResourceId,
+  apiGatewayId,
+});
 
 app.synth();
