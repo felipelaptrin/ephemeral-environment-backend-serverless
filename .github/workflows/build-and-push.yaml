@@ -9,6 +9,9 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
 
+env:
+  OIDC_IAM_ROLE_ARN: arn:aws:iam::937168356724:role/GitHubActionsOidcRole
+
 jobs:
   Build-And-Push-To-Dev:
     runs-on: ubuntu-latest
@@ -17,8 +20,10 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Build and Push to Dev Environment
-        uses: ./.github/actions/build-and-push
+        uses: ./.github/actions/build-and-deploy
         with:
           ecr_repository_name: backend
           working_directory: api
-          aws_iam_role_oidc_arn: arn:aws:iam::937168356724:role/GitHubActions
+          aws_iam_role_oidc_arn: ${{ env.OIDC_IAM_ROLE_ARN }}
+          lambda_name: backend
+          lambda_alias: dev

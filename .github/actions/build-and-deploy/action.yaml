@@ -1,0 +1,78 @@
+name: Build and Push to ECR and then deploys a Lambda Function
+inputs:
+  working_directory:
+    description: Working directory
+    required: true
+  aws_iam_role_oidc_arn:
+    description: ARN of the IAM Role that will be assumed via OIDC
+    default: GitHubActions
+  aws_region:
+    description: AWS region
+    default: us-east-1
+  ecr_repository_name:
+    description: Name of the ECR repository
+  image_tag:
+    description: Image tag to use
+    default: latest
+  lambda_name:
+    description: Name of the Lambda that will be deployed
+  lambda_alias:
+    description: Name of the Lambda alias that will point to the new Lambda Function version
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: ${{ inputs.aws_iam_role_oidc_arn }}
+        aws-region: ${{ inputs.aws_region }}
+        role-session-name: GitHubActions
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to Amazon ECR
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ecr_repository_name }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Update Lambda Code (LATEST) with new image
+      shell: bash
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ inputs.ecr_repository_name }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+      run: |
+        aws lambda update-function-code \
+          --function-name ${{ inputs.lambda_name }} \
+          --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Wait for Lambda Function to be updated
+      shell: bash
+      run: aws lambda wait function-updated --function-name ${{ inputs.lambda_name }}
+
+    - name: Publish new Lambda Function version
+      shell: bash
+      run: |
+        VERSION=$(aws lambda publish-version \
+          --function-name ${{ inputs.lambda_name }} \
+          --query 'Version' \
+          --output text)
+        echo "Published version: $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+    - name: Update Lambda Function Alias to point to new version
+      shell: bash
+      run: |
+        aws lambda update-alias \
+          --function-name ${{ inputs.lambda_name }} \
+          --name ${{ inputs.lambda_alias }} \
+          --function-version "$VERSION"
