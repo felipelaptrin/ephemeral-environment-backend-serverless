@@ -11,13 +11,19 @@ inputs:
     default: us-east-1
   ecr_repository_name:
     description: Name of the ECR repository
+    required: true
   image_tag:
     description: Image tag to use
     default: latest
   lambda_name:
     description: Name of the Lambda that will be deployed
+    required: true
   lambda_alias:
     description: Name of the Lambda alias that will point to the new Lambda Function version
+    required: true
+  ephemeral:
+    description: if set to 'true' it will add an environment variable to remove the base path
+    default: "false"
 
 runs:
   using: composite
@@ -63,6 +69,33 @@ runs:
           --function-name ${{ inputs.lambda_name }} \
           --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+    - name: Add environment variable for Ephemeral Environment
+      if: inputs.ephemeral == 'true'
+      shell: bash
+      run: |
+        EXISTING_ENV_VARS=$(aws lambda get-function-configuration \
+          --function-name "${{ inputs.lambda_name }}" \
+          --query "Environment.Variables" \
+          --output json)
+
+        if [[ "$EXISTING_ENV_VARS" == "null" ]]; then
+          EXISTING_ENV_VARS="{}"
+        fi
+
+        EXISTING_ENV_VARS_STRING=$(echo "$EXISTING_ENV_VARS" | jq -r 'to_entries | map("\(.key)=\(.value)") | join(",")')
+        echo "EXISTING_ENV_VARS_STRING=$EXISTING_ENV_VARS_STRING" >> $GITHUB_ENV
+
+        UPDATED_ENV=$(jq -n \
+          --argjson env "$EXISTING_ENV_VARS" --arg key "REMOVE_BASE_PATH" \
+          --arg value "${{ inputs.image_tag }}" \
+          '$env + {($key): $value}')
+        UPDATED_ENV_STRING=$(echo "$UPDATED_ENV" | jq -r 'to_entries | map("\(.key)=\(.value)") | join(",")')
+
+        aws lambda wait function-updated --function-name ${{ inputs.lambda_name }}
+        aws lambda update-function-configuration \
+          --function-name "${{ inputs.lambda_name }}" \
+          --environment "Variables={$UPDATED_ENV_STRING}"
+
     - name: Wait for Lambda Function to be updated
       shell: bash
       run: aws lambda wait function-updated --function-name ${{ inputs.lambda_name }}
@@ -73,14 +106,41 @@ runs:
         VERSION=$(aws lambda publish-version \
           --function-name ${{ inputs.lambda_name }} \
           --query 'Version' \
+          --description "${{ inputs.lambda_alias }}" \
           --output text)
         echo "Published version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+    - name: Update Lambda Function Ephemeral Alias to point to new version
+      if: inputs.ephemeral == 'true'
+      shell: bash
+      run: |
+        ALIAS_MATCH=$(aws lambda list-aliases \
+          --function-name "${{ inputs.lambda_name }}" \
+          --query "Aliases[?Name=='${{ inputs.lambda_alias }}'].Name" \
+          --output text)
+
+        if [[ -n "$ALIAS_MATCH" ]]; then
+            echo "Alias '${{ inputs.lambda_alias }}' already exists. Skipping creation..."
+        else
+            aws lambda create-alias --function-name  ${{ inputs.lambda_name }} \
+              --name ${{ inputs.lambda_alias }} --function-version "$VERSION"
+            aws lambda wait function-updated --function-name ${{ inputs.lambda_name }}
+        fi
+
     - name: Update Lambda Function Alias to point to new version
+      if: inputs.ephemeral == 'false'
       shell: bash
       run: |
         aws lambda update-alias \
           --function-name ${{ inputs.lambda_name }} \
           --name ${{ inputs.lambda_alias }} \
           --function-version "$VERSION"
+
+    - name: Remove env var added for Ephemeral Environment
+      if: inputs.ephemeral == 'true'
+      shell: bash
+      run: |
+        aws lambda update-function-configuration \
+          --function-name "${{ inputs.lambda_name }}" \
+          --environment "Variables={$EXISTING_ENV_VARS_STRING}"

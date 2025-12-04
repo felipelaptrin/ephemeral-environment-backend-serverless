@@ -1,0 +1,134 @@
+name: Build and Push to Ephemeral Environment
+on:
+  pull_request:
+    # paths:
+    #   - api/**
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+  pull-requests: write # Allow Pull Request comment
+
+concurrency:
+  group: ephemeral-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PR_PREFIX: pr-${{ github.event.pull_request.number }}
+  OIDC_IAM_ROLE_ARN: arn:aws:iam::937168356724:role/GitHubActions
+  DOMAIN: api.dev.demosfelipetrindade.lat
+  BACKEND_LAMBDA_NAME: backend
+  EPHEMERAL_CLOUDFORMATION_STACK_PREFIX: EphemeralStage-EphemeralEnvironment
+
+jobs:
+  Build-And-Push-To-Ephemeral:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build and Push to Ephemeral Environment
+        uses: ./.github/actions/build-and-deploy
+        with:
+          ecr_repository_name: backend
+          working_directory: api
+          aws_iam_role_oidc_arn: ${{ env.OIDC_IAM_ROLE_ARN }}
+          lambda_name: ${{ env.BACKEND_LAMBDA_NAME }}
+          image_tag: ${{ env.PR_PREFIX }}
+          lambda_alias: ${{ env.PR_PREFIX }}
+          ephemeral: "true"
+
+  Deploy-Ephemeral-IaC:
+    if: github.event.action != 'closed'
+    needs: Build-And-Push-To-Ephemeral
+    uses: ./.github/workflows/iac-ephemeral-deploy.yaml
+    with:
+      apiGatewayId: dgq2a4gu22 # HARDCODED
+      rootApiGatewayResourceId: qrb0mqp00j # HARDCODED
+      pullRequest: pr-${{ github.event.pull_request.number }} # HARDCODED
+
+  Comment-Pull-Request:
+    if: github.event.action != 'closed'
+    needs: Deploy-Ephemeral-IaC
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment in the Pull Request with link
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: ephemeral-environment-link
+          message: |
+            # :rocket: Ephemeral Environment Deployed!
+            The ephemeral backend environment has been deployed at the following URL: https://${{ env.DOMAIN }}/${{ env.PR_PREFIX}}/
+
+  Destroy-Ephemeral-Environment:
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ env.OIDC_IAM_ROLE_ARN }}
+          aws-region: us-east-1
+          role-session-name: GitHubActions
+
+      - name: Delete alias
+        run: |
+          echo "Destroying alias '${{ env.PR_PREFIX }}'"
+          aws lambda delete-alias --function-name "${{ env.BACKEND_LAMBDA_NAME }}" \
+            --name "${{ env.PR_PREFIX }}"
+
+      - name: Destroy all Lambda versions related to the Pull Request
+        run: |
+          echo "Scanning ALL versions for Lambda function: ${{ env.BACKEND_LAMBDA_NAME }}"
+          TARGET_VERSIONS=()
+          MARKER=""
+          while :; do
+            if [ -n "$MARKER" ]; then
+              PAGE_JSON=$(aws lambda list-versions-by-function \
+                --function-name "${{ env.BACKEND_LAMBDA_NAME }}" \
+                --starting-token "$MARKER")
+            else
+              PAGE_JSON=$(aws lambda list-versions-by-function \
+                --function-name "${{ env.BACKEND_LAMBDA_NAME }}")
+            fi
+
+            PAGE_VERSIONS=($(echo "$PAGE_JSON" \
+              | jq -r '.Versions[]
+              | select(.Description == "pr-1")
+              | .Version
+              | select(. != "$LATEST")'))
+
+            if [ ${#PAGE_VERSIONS[@]} -gt 0 ]; then
+              TARGET_VERSIONS+=("${PAGE_VERSIONS[@]}")
+            fi
+
+            MARKER=$(echo "$PAGE_JSON" | jq -r '.NextToken // empty')
+            [ -z "$MARKER" ] && break
+          done
+
+          if [ ${#TARGET_VERSIONS[@]} -eq 0 ]; then
+            echo "No versions found."
+          else
+            for VERSION in "${TARGET_VERSIONS[@]}"; do
+              echo "Processing version: $VERSION"
+
+              aws lambda delete-function \
+                --function-name "${{ env.BACKEND_LAMBDA_NAME }}" \
+                --qualifier "$VERSION"
+
+              echo "Deleted version $VERSION"
+            done
+          fi
+          echo "Found versions ${TARGET_VERSIONS[@]}"
+
+      - name: Destroy Ephemeral CloudFormation Stack
+        run: |
+          aws cloudformation delete-stack \
+            --stack-name ${{ env.EPHEMERAL_CLOUDFORMATION_STACK_PREFIX }}-${{ env.PR_PREFIX }}
+
+      - name: Delete comment in the Pull Request
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: ephemeral-environment-link
+          mode: delete
