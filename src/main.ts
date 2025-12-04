@@ -1,12 +1,12 @@
 import * as cdk from "aws-cdk-lib";
 import { ShellStep } from "aws-cdk-lib/pipelines";
 import { AwsCredentials, GitHubWorkflow, JsonPatch } from "cdk-pipelines-github";
-import { Construct } from "constructs";
 
 import { devConfig } from "./config";
-import { Accounts, Config } from "./config/types";
-import { AssetsStack } from "./stack/assets";
-import { WorkloadStack } from "./stack/workload";
+import { Accounts } from "./config/types";
+import { AssetsPipelineStage, WorkloadPipelineStage } from "./pipelines/pipelines";
+
+// import { EphemeralStack } from "./stack/ephemeral";
 
 const app = new cdk.App();
 
@@ -18,22 +18,6 @@ const pipeline = new GitHubWorkflow(app, "Pipeline", {
     gitHubActionRoleArn: `arn:aws:iam::${Accounts.Development}:role/GitHubActions`, // This Role already exists in my account
   }),
 });
-
-export class AssetsPipelineStage extends cdk.Stage {
-  constructor(scope: Construct, id: string, props?: cdk.StageProps) {
-    super(scope, id, props);
-
-    new AssetsStack(this, "AssetsStageStack");
-  }
-}
-
-export class WorkloadPipelineStage extends cdk.Stage {
-  constructor(scope: Construct, id: string, configProps: Config, props?: cdk.StageProps) {
-    super(scope, id, props);
-
-    new WorkloadStack(this, "StageStack", { config: configProps });
-  }
-}
 
 const devAssetsStage = new AssetsPipelineStage(app, "DevAssetsStage", { env: devConfig.env });
 const devWorkloadStage = new WorkloadPipelineStage(app, "DevWorkloadStage", devConfig, { env: devConfig.env });
@@ -57,5 +41,16 @@ deployWorkflow.patch(
     },
   }),
 );
+
+// // Ephemeral Environment
+// const pullRequest = process.env["PULL_REQUEST"] ?? "";
+// const apiGatewayId = process.env["API_GATEWAY_ID"]!;
+// const rootApiGatewayResourceId = process.env["ROOT_API_GATEWAY_RESOURCE_ID"]!;
+
+// new EphemeralStack(app, `EphemeralEnvironment${pullRequest}`, {
+//   pullRequest,
+//   rootApiGatewayResourceId,
+//   apiGatewayId,
+// });
 
 app.synth();
