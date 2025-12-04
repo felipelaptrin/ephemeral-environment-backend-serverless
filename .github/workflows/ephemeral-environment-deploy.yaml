@@ -1,8 +1,9 @@
 name: Build and Push to Ephemeral Environment
 on:
   pull_request:
-    # paths:
-    #   - api/**
+    types: [opened, reopened, synchronize, closed]
+    paths:
+      - api/**
 
 permissions:
   id-token: write # This is required for requesting the JWT
