@@ -1,0 +1,41 @@
+name: Build and Push to Ephemeral Environment
+on:
+  pull_request:
+    # paths:
+    #   - api/**
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+env:
+  PR_PREFIX: pr-${{ github.event.pull_request.number }}
+  OIDC_IAM_ROLE_ARN: arn:aws:iam::937168356724:role/GitHubActions
+  DOMAIN: dev.demosfelipetrindade.lat
+  BACKEND_LAMBDA_NAME: backend
+  BACKEND_API_GATEWAY_ID: dgq2a4gu22
+  BACKEND_API_GATEWAY_ROOT_ID: qrb0mqp00j
+
+jobs:
+  Build-And-Push-To-Ephemeral:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build and Push to Ephemeral Environment
+        uses: ./.github/actions/build-and-deploy
+        with:
+          ecr_repository_name: backend
+          working_directory: api
+          aws_iam_role_oidc_arn: ${{ env.OIDC_IAM_ROLE_ARN }}
+          image_tag: ${{ env.PR_PREFIX }}
+          ephemeral: "true"
+
+  Deploy-Ephemeral-IaC:
+    needs: Build-And-Push-To-Ephemeral
+    uses: ./.github/workflows/iac-ephemeral-deploy.yaml
+    with:
+      apiGatewayId: ${{ env.BACKEND_API_GATEWAY_ID }}
+      rootApiGatewayResourceId: ${{ env.BACKEND_API_GATEWAY_ROOT_ID }}
+      pullRequest: ${{ env.PR_PREFIX }}
