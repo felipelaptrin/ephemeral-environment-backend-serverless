@@ -10,7 +10,7 @@ permissions:
   contents: read # This is required for actions/checkout
 
 env:
-  OIDC_IAM_ROLE_ARN: arn:aws:iam::937168356724:role/GitHubActionsOidcRole
+  OIDC_IAM_ROLE_ARN: arn:aws:iam::937168356724:role/GitHubActions
 
 jobs:
   Build-And-Push-To-Dev:
