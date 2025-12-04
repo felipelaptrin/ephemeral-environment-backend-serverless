@@ -41,6 +41,7 @@ jobs:
       pullRequest: pr-${{ github.event.pull_request.number }}
 
   Notify-User:
+    needs: Deploy-Ephemeral-IaC
     runs-on: ubuntu-latest
     steps:
       - name: Comment in the Pull Request with link
