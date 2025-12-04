@@ -107,7 +107,25 @@ runs:
         echo "Published version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+    - name: Update Lambda Function Ephemeral Alias to point to new version
+      if: inputs.ephemeral == 'true'
+      shell: bash
+      run: |
+        ALIAS_EXIST=$(aws lambda get-alias \
+          --function-name ${{ inputs.lambda_name }} \
+          --name "${{ inputs.lambda_alias }}" 2>&1)
+
+        if [[ $? -eq 0 ]]; then
+            echo "Alias '${{ inputs.lambda_alias }}' already exists."
+            exit 0
+        else
+            aws lambda create-alias --function-name  ${{ inputs.lambda_name }} \
+              --name ${{ inputs.lambda_alias }} --function-version "$VERSION
+            aws lambda wait function-updated --function-name ${{ inputs.lambda_name }}
+        fi
+
     - name: Update Lambda Function Alias to point to new version
+      if: inputs.ephemeral == 'false'
       shell: bash
       run: |
         aws lambda update-alias \
