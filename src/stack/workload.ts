@@ -72,6 +72,7 @@ export class WorkloadStack extends cdk.Stack {
         allowHeaders: ["Content-Type", "X-Amz-Date", "Authorization", "X-Api-Key", "X-Amz-Security-Token"],
       },
     });
+    this.exportValue(gateway.restApiId, { name: "BackendApiGatewayId" });
 
     new route53.ARecord(this, "ApiGatewayDomainRecord", {
       zone: publicHostedZone,
