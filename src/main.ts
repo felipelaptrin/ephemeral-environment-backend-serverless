@@ -43,7 +43,10 @@ pipeline.addStage(devWorkloadStage);
 
 const deployWorkflow = pipeline.workflowFile;
 
+// Use latest checkout action
 deployWorkflow.patch(JsonPatch.replace("/jobs/Build-Build/steps/0/uses", "actions/checkout@v6"));
+// Trigger only when src folder is modified
+deployWorkflow.patch(JsonPatch.add("/on/push/paths", ["src/**"]));
 deployWorkflow.patch(
   JsonPatch.add("/jobs/Build-Build/steps/1", {
     name: "Use NodeJS v22",
