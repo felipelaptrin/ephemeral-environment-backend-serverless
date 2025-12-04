@@ -16,6 +16,7 @@ env:
 
 jobs:
   Build-And-Push-To-Ephemeral:
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,6 +34,7 @@ jobs:
           ephemeral: "true"
 
   Deploy-Ephemeral-IaC:
+    if: github.event.action != 'closed'
     needs: Build-And-Push-To-Ephemeral
     uses: ./.github/workflows/iac-ephemeral-deploy.yaml
     with:
@@ -41,6 +43,7 @@ jobs:
       pullRequest: pr-${{ github.event.pull_request.number }}
 
   Comment-Pull-Request:
+    if: github.event.action != 'closed'
     needs: Deploy-Ephemeral-IaC
     runs-on: ubuntu-latest
     steps:

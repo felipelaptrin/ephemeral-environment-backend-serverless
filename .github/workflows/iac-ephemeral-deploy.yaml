@@ -108,6 +108,6 @@ jobs:
           no-fail-on-empty-changeset: "1"
           role-arn: arn:aws:iam::937168356724:role/cdk-hnb659fds-cfn-exec-role-937168356724-us-east-1
 env:
-  apiGatewayId: ${{ inputs.apiGatewayId }}
-  rootApiGatewayResourceId: ${{ inputs.rootApiGatewayResourceId }}
-  pullRequest: ${{ inputs.pullRequest }}
+  API_GATEWAY_ID: ${{ inputs.apiGatewayId }}
+  ROOT_API_GATEWAY_RESOURCE_ID: ${{ inputs.rootApiGatewayResourceId }}
+  PULL_REQUEST: ${{ inputs.pullRequest }}
