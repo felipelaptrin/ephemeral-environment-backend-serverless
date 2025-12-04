@@ -17,8 +17,9 @@ export class EphemeralStack extends cdk.Stack {
       restApiId: props.apiGatewayId,
       rootResourceId: props.rootApiGatewayResourceId,
     });
-    new Bucket(this, "Bucket");
-
-    // gateway.root.addResource(props.pullRequest);
+    new Bucket(this, "Bucket", {
+      bucketName: `my-bucket-${props.apiGatewayId}`,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
   }
 }
