@@ -126,3 +126,9 @@ jobs:
         run: |
           aws cloudformation delete-stack \
             --stack-name ${{ env.EPHEMERAL_CLOUDFORMATION_STACK_PREFIX }}-${{ env.PR_PREFIX }}
+
+      - name: Delete comment in the Pull Request
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: ephemeral-environment-link
+          mode: delete
