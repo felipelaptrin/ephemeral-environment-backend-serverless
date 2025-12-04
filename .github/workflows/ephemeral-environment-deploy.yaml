@@ -7,6 +7,11 @@ on:
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
+  pull-requests: write # Allow Pull Request comment
+
+concurrency:
+  group: ephemeral-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 env:
   PR_PREFIX: pr-${{ github.event.pull_request.number }}
@@ -53,4 +58,4 @@ jobs:
           comment-tag: ephemeral-environment-link
           message: |
             # :rocket: Ephemeral Environment Deployed!
-            The ephemeral backend environment has been deployed at the following URL: https://${{ env.DOMAIN }}/${{ env.PR_PREFIX}}
+            The ephemeral backend environment has been deployed at the following URL: https://${{ env.DOMAIN }}/${{ env.PR_PREFIX}}/
