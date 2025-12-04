@@ -116,7 +116,7 @@ jobs:
               echo "Processing version: $VERSION"
 
               aws lambda delete-function \
-                --function-name "$FUNCTION_NAME" \
+                --function-name "${{ env.BACKEND_LAMBDA_NAME }}" \
                 --qualifier "$VERSION"
 
               echo "Deleted version $VERSION"
