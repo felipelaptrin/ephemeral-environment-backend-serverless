@@ -27,6 +27,7 @@ jobs:
           ecr_repository_name: backend
           working_directory: api
           aws_iam_role_oidc_arn: ${{ env.OIDC_IAM_ROLE_ARN }}
+          lambda_name: ${{ env.BACKEND_LAMBDA_NAME }}
           image_tag: ${{ env.PR_PREFIX }}
           ephemeral: "true"
 
