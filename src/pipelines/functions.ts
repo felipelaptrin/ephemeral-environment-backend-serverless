@@ -32,8 +32,8 @@ export function setEphemeralWorkflowTriggers() {
 
 export function setEphemeralGlobalEnvironmentVariables() {
   return {
-    apiGatewayId: "${{ inputs.apiGatewayId }}",
-    rootApiGatewayResourceId: "${{ inputs.rootApiGatewayResourceId }}",
-    pullRequest: "${{ inputs.pullRequest }}",
+    API_GATEWAY_ID: "${{ inputs.apiGatewayId }}",
+    ROOT_API_GATEWAY_RESOURCE_ID: "${{ inputs.rootApiGatewayResourceId }}",
+    PULL_REQUEST: "${{ inputs.pullRequest }}",
   };
 }
