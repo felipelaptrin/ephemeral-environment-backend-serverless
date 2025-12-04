@@ -88,6 +88,7 @@ runs:
           '$env + {($key): $value}')
         UPDATED_ENV_STRING=$(echo "$UPDATED_ENV" | jq -r 'to_entries | map("\(.key)=\(.value)") | join(",")')
 
+        aws lambda wait function-updated --function-name ${{ inputs.lambda_name }}
         aws lambda update-function-configuration \
           --function-name "${{ inputs.lambda_name }}" \
           --environment "Variables={$UPDATED_ENV_STRING}"
