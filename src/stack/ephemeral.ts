@@ -1,5 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import * as apiGateway from "aws-cdk-lib/aws-apigateway";
+import { Bucket } from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
 export interface WorkloadStackProps extends cdk.StackProps {
@@ -15,6 +16,10 @@ export class EphemeralStack extends cdk.Stack {
     apiGateway.RestApi.fromRestApiAttributes(this, "ApiGateway", {
       restApiId: props.apiGatewayId,
       rootResourceId: props.rootApiGatewayResourceId,
+    });
+
+    new Bucket(this, "Bucket", {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
   }
 }
