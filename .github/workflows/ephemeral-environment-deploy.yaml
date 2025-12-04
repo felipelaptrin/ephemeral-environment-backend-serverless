@@ -40,7 +40,7 @@ jobs:
       rootApiGatewayResourceId: qrb0mqp00j
       pullRequest: pr-${{ github.event.pull_request.number }}
 
-  Notify-User:
+  Comment-Pull-Request:
     needs: Deploy-Ephemeral-IaC
     runs-on: ubuntu-latest
     steps:

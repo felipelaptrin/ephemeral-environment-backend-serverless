@@ -106,6 +106,7 @@ runs:
         VERSION=$(aws lambda publish-version \
           --function-name ${{ inputs.lambda_name }} \
           --query 'Version' \
+          --description "${{ inputs.lambda_alias }}" \
           --output text)
         echo "Published version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -123,7 +124,7 @@ runs:
             echo "Alias '${{ inputs.lambda_alias }}' already exists. Skipping creation..."
         else
             aws lambda create-alias --function-name  ${{ inputs.lambda_name }} \
-              --name ${{ inputs.lambda_alias }} --function-version "$VERSION
+              --name ${{ inputs.lambda_alias }} --function-version "$VERSION"
             aws lambda wait function-updated --function-name ${{ inputs.lambda_name }}
         fi
 
