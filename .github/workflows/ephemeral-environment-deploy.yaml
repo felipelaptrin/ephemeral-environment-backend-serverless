@@ -77,7 +77,7 @@ jobs:
       - name: Delete alias
         run: |
           echo "Destroying alias '${{ env.PR_PREFIX }}'"
-          aws lambda delete-alias so --function-name "${{ env.BACKEND_LAMBDA_NAME }}" \
+          aws lambda delete-alias --function-name "${{ env.BACKEND_LAMBDA_NAME }}" \
             --name "${{ env.PR_PREFIX }}"
 
       - name: Destroy all Lambda versions related to the Pull Request
