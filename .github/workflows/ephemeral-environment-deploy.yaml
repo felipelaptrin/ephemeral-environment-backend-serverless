@@ -13,8 +13,6 @@ env:
   OIDC_IAM_ROLE_ARN: arn:aws:iam::937168356724:role/GitHubActions
   DOMAIN: dev.demosfelipetrindade.lat
   BACKEND_LAMBDA_NAME: backend
-  BACKEND_API_GATEWAY_ID: dgq2a4gu22
-  BACKEND_API_GATEWAY_ROOT_ID: qrb0mqp00j
 
 jobs:
   Build-And-Push-To-Ephemeral:
@@ -36,6 +34,6 @@ jobs:
     needs: Build-And-Push-To-Ephemeral
     uses: ./.github/workflows/iac-ephemeral-deploy.yaml
     with:
-      apiGatewayId: ${{ env.BACKEND_API_GATEWAY_ID }}
-      rootApiGatewayResourceId: ${{ env.BACKEND_API_GATEWAY_ROOT_ID }}
-      pullRequest: ${{ env.PR_PREFIX }}
+      apiGatewayId: dgq2a4gu22
+      rootApiGatewayResourceId: qrb0mqp00j
+      pullRequest: pr-${{ github.event.pull_request.number }}

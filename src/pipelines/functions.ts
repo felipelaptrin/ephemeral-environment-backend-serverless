@@ -15,15 +15,15 @@ export function setEphemeralWorkflowTriggers() {
       inputs: {
         apiGatewayId: {
           type: "string",
-          require: true,
+          required: true,
         },
         rootApiGatewayResourceId: {
           type: "string",
-          require: true,
+          required: true,
         },
         pullRequest: {
           type: "string",
-          require: true,
+          required: true,
         },
       },
     },
