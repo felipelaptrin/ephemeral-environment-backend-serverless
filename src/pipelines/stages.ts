@@ -26,7 +26,7 @@ export class EphemeralPipelineStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props?: cdk.StageProps) {
     super(scope, id, props);
 
-    const pullRequest = process.env["PULL_REQUEST"]!;
+    const pullRequest = process.env["PULL_REQUEST"] ?? "";
     const apiGatewayId = process.env["API_GATEWAY_ID"]!;
     const rootApiGatewayResourceId = process.env["ROOT_API_GATEWAY_RESOURCE_ID"]!;
 
