@@ -11,13 +11,16 @@ inputs:
     default: us-east-1
   ecr_repository_name:
     description: Name of the ECR repository
+    required: true
   image_tag:
     description: Image tag to use
     default: latest
   lambda_name:
     description: Name of the Lambda that will be deployed
+    required: true
   lambda_alias:
     description: Name of the Lambda alias that will point to the new Lambda Function version
+    required: true
   ephemeral:
     description: if set to 'true' it will add an environment variable to remove the base path
     default: "false"
@@ -111,13 +114,13 @@ runs:
       if: inputs.ephemeral == 'true'
       shell: bash
       run: |
-        ALIAS_EXIST=$(aws lambda get-alias \
-          --function-name ${{ inputs.lambda_name }} \
-          --name "${{ inputs.lambda_alias }}" 2>&1)
+        ALIAS_MATCH=$(aws lambda list-aliases \
+          --function-name "${{ inputs.lambda_name }}" \
+          --query "Aliases[?Name=='${{ inputs.lambda_alias }}'].Name" \
+          --output text)
 
-        if [[ $? -eq 0 ]]; then
-            echo "Alias '${{ inputs.lambda_alias }}' already exists."
-            exit 0
+        if [[ -n "$ALIAS_MATCH" ]]; then
+            echo "Alias '${{ inputs.lambda_alias }}' already exists. Skipping creation..."
         else
             aws lambda create-alias --function-name  ${{ inputs.lambda_name }} \
               --name ${{ inputs.lambda_alias }} --function-version "$VERSION

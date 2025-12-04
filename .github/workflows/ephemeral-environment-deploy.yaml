@@ -11,7 +11,7 @@ permissions:
 env:
   PR_PREFIX: pr-${{ github.event.pull_request.number }}
   OIDC_IAM_ROLE_ARN: arn:aws:iam::937168356724:role/GitHubActions
-  DOMAIN: dev.demosfelipetrindade.lat
+  DOMAIN: api.dev.demosfelipetrindade.lat
   BACKEND_LAMBDA_NAME: backend
 
 jobs:
@@ -39,3 +39,14 @@ jobs:
       apiGatewayId: dgq2a4gu22
       rootApiGatewayResourceId: qrb0mqp00j
       pullRequest: pr-${{ github.event.pull_request.number }}
+
+  Notify-User:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment in the Pull Request with link
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          comment-tag: ephemeral-environment-link
+          message: |
+            # :rocket: Ephemeral Environment Deployed!
+            The ephemeral backend environment has been deployed at the following URL: https://${{ env.DOMAIN }}/${{ env.PR_PREFIX}}
