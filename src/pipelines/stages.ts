@@ -26,9 +26,11 @@ export class EphemeralPipelineStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props?: cdk.StageProps) {
     super(scope, id, props);
 
-    const pullRequest = process.env["PULL_REQUEST"] ?? "";
-    const apiGatewayId = process.env["API_GATEWAY_ID"]!;
-    const rootApiGatewayResourceId = process.env["ROOT_API_GATEWAY_RESOURCE_ID"]!;
+    // The default values below won't be used, it's only used to not fail during synth
+    // These values will always be populated during Pull Request CI/CD in GitHub Actions
+    const pullRequest = process.env["PULL_REQUEST"] ?? "dummy";
+    const apiGatewayId = process.env["API_GATEWAY_ID"] ?? "dummy";
+    const rootApiGatewayResourceId = process.env["ROOT_API_GATEWAY_RESOURCE_ID"] ?? "dummy";
 
     new EphemeralStack(this, `EphemeralEnvironment`, {
       pullRequest,
