@@ -63,7 +63,7 @@ jobs:
             The ephemeral backend environment has been deployed at the following URL: https://${{ env.DOMAIN }}/${{ env.PR_PREFIX}}/
 
   Destroy-Ephemeral-Environment:
-    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
