@@ -87,7 +87,7 @@ runs:
 
         UPDATED_ENV=$(jq -n \
           --argjson env "$EXISTING_ENV_VARS" --arg key "REMOVE_BASE_PATH" \
-          --arg value "${{ inputs.image_tag }}" \
+          --arg value "/${{ inputs.image_tag }}" \
           '$env + {($key): $value}')
         UPDATED_ENV_STRING=$(echo "$UPDATED_ENV" | jq -r 'to_entries | map("\(.key)=\(.value)") | join(",")')
 
