@@ -12,4 +12,4 @@ def healthcheck():
 
 @app.get("/random")
 def random():
-    return {"number": randint(1, 100)}
+    return {"number": randint(1, 10)}
