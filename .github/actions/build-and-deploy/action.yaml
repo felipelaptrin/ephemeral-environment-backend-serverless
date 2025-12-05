@@ -122,6 +122,10 @@ runs:
 
         if [[ -n "$ALIAS_MATCH" ]]; then
             echo "Alias '${{ inputs.lambda_alias }}' already exists. Skipping creation..."
+            aws lambda update-alias \
+              --function-name ${{ inputs.lambda_name }} \
+              --name ${{ inputs.lambda_alias }} \
+              --function-version "$VERSION"
         else
             aws lambda create-alias --function-name  ${{ inputs.lambda_name }} \
               --name ${{ inputs.lambda_alias }} --function-version "$VERSION"
