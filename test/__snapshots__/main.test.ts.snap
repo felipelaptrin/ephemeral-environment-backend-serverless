@@ -1,0 +1,575 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`snapshot for AssetsStack: matches previous state 1`] = `
+{
+  "Resources": {
+    "BackendRepository9B711290": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "ImageTagMutability": "MUTABLE",
+        "RepositoryName": "backend",
+      },
+      "Type": "AWS::ECR::Repository",
+      "UpdateReplacePolicy": "Delete",
+    },
+  },
+}
+`;
+
+exports[`snapshot for WorkloadStack: matches previous state 1`] = `
+{
+  "Outputs": {
+    "ExportBackendApiGatewayId": {
+      "Export": {
+        "Name": "BackendApiGatewayId",
+      },
+      "Value": {
+        "Ref": "RestApiGatewayAEAE89B5",
+      },
+    },
+    "RestApiGatewayEndpointF48811B0": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "RestApiGatewayAEAE89B5",
+            },
+            ".execute-api.us-east-1.",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "RestApiGatewayDeploymentStageapi0BC0EFD2",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
+  "Resources": {
+    "ApiGatewayDomainRecord124715A3": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "RestApiGatewayCustomDomain8BFC93EB",
+              "RegionalDomainName",
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::GetAtt": [
+              "RestApiGatewayCustomDomain8BFC93EB",
+              "RegionalHostedZoneId",
+            ],
+          },
+        },
+        "HostedZoneId": "DUMMY",
+        "Name": "api.dev.demosfelipetrindade.lat.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "BackendCertificateC17D5DC7": {
+      "Properties": {
+        "DomainName": "demosfelipetrindade.lat",
+        "DomainValidationOptions": [
+          {
+            "DomainName": "demosfelipetrindade.lat",
+            "HostedZoneId": "DUMMY",
+          },
+          {
+            "DomainName": "api.dev.demosfelipetrindade.lat",
+            "HostedZoneId": "DUMMY",
+          },
+        ],
+        "SubjectAlternativeNames": [
+          "api.dev.demosfelipetrindade.lat",
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "MyWorkloadStack/BackendCertificate",
+          },
+        ],
+        "ValidationMethod": "DNS",
+      },
+      "Type": "AWS::CertificateManager::Certificate",
+    },
+    "BackendLambdaAlias572577FA": {
+      "Properties": {
+        "FunctionName": {
+          "Ref": "BackendLambdaD93C7B96",
+        },
+        "FunctionVersion": {
+          "Fn::GetAtt": [
+            "BackendLambdaCurrentVersion6704D3B8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "Version",
+          ],
+        },
+        "Name": "dev",
+      },
+      "Type": "AWS::Lambda::Alias",
+    },
+    "BackendLambdaCurrentVersion6704D3B8xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": {
+      "Properties": {
+        "FunctionName": {
+          "Ref": "BackendLambdaD93C7B96",
+        },
+      },
+      "Type": "AWS::Lambda::Version",
+    },
+    "BackendLambdaD93C7B96": {
+      "DependsOn": [
+        "BackendLambdaServiceRole98E4BC89",
+      ],
+      "Properties": {
+        "Architectures": [
+          "arm64",
+        ],
+        "Code": Any<Object>,
+        "Description": "Serves as Simple Backend",
+        "FunctionName": "backend",
+        "MemorySize": 512,
+        "PackageType": "Image",
+        "Role": {
+          "Fn::GetAtt": [
+            "BackendLambdaServiceRole98E4BC89",
+            "Arn",
+          ],
+        },
+        "Timeout": 10,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "BackendLambdaServiceRole98E4BC89": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "RestApiGatewayAEAE89B5": {
+      "Properties": {
+        "DisableExecuteApiEndpoint": false,
+        "Name": "backend",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "RestApiGatewayANY52BC2EA4": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Ref": "BackendLambdaAlias572577FA",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "RestApiGatewayAEAE89B5",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApiGatewayANYApiPermissionMyWorkloadStackRestApiGateway7BD1A0D3ANYCA298B52": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "BackendLambdaAlias572577FA",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:937168356724:",
+              {
+                "Ref": "RestApiGatewayAEAE89B5",
+              },
+              "/",
+              {
+                "Ref": "RestApiGatewayDeploymentStageapi0BC0EFD2",
+              },
+              "/*/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApiGatewayANYApiPermissionTestMyWorkloadStackRestApiGateway7BD1A0D3ANY36838233": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "BackendLambdaAlias572577FA",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:937168356724:",
+              {
+                "Ref": "RestApiGatewayAEAE89B5",
+              },
+              "/test-invoke-stage/*/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApiGatewayAccount9D8EA70A": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "RestApiGatewayAEAE89B5",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "RestApiGatewayCloudWatchRole2EB75410",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "RestApiGatewayCloudWatchRole2EB75410": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "RestApiGatewayCustomDomain8BFC93EB": {
+      "Properties": {
+        "DomainName": "api.dev.demosfelipetrindade.lat",
+        "EndpointConfiguration": {
+          "Types": [
+            "REGIONAL",
+          ],
+        },
+        "RegionalCertificateArn": {
+          "Ref": "BackendCertificateC17D5DC7",
+        },
+      },
+      "Type": "AWS::ApiGateway::DomainName",
+    },
+    "RestApiGatewayCustomDomainMapMyWorkloadStackRestApiGateway7BD1A0D34AE224A6": {
+      "Properties": {
+        "DomainName": {
+          "Ref": "RestApiGatewayCustomDomain8BFC93EB",
+        },
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+        "Stage": {
+          "Ref": "RestApiGatewayDeploymentStageapi0BC0EFD2",
+        },
+      },
+      "Type": "AWS::ApiGateway::BasePathMapping",
+    },
+    "RestApiGatewayDeploymentF53F9A83a441046c9761fffd814c9c3a82e91e31": {
+      "DependsOn": [
+        "RestApiGatewayproxyANYAF61856E",
+        "RestApiGatewayproxyOPTIONS299CB6ED",
+        "RestApiGatewayproxyE99E9051",
+        "RestApiGatewayANY52BC2EA4",
+        "RestApiGatewayOPTIONS55C62A1F",
+      ],
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "RestApiGatewayDeploymentStageapi0BC0EFD2": {
+      "DependsOn": [
+        "RestApiGatewayAccount9D8EA70A",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "RestApiGatewayDeploymentF53F9A83a441046c9761fffd814c9c3a82e91e31",
+        },
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+        "StageName": "api",
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "RestApiGatewayOPTIONS55C62A1F": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "RestApiGatewayAEAE89B5",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApiGatewayproxyANYAF61856E": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+                {
+                  "Ref": "BackendLambdaAlias572577FA",
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "RestApiGatewayproxyE99E9051",
+        },
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "RestApiGatewayproxyANYApiPermissionMyWorkloadStackRestApiGateway7BD1A0D3ANYproxy5D9FDCC6": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "BackendLambdaAlias572577FA",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:937168356724:",
+              {
+                "Ref": "RestApiGatewayAEAE89B5",
+              },
+              "/",
+              {
+                "Ref": "RestApiGatewayDeploymentStageapi0BC0EFD2",
+              },
+              "/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApiGatewayproxyANYApiPermissionTestMyWorkloadStackRestApiGateway7BD1A0D3ANYproxyC213D9FF": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "BackendLambdaAlias572577FA",
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:us-east-1:937168356724:",
+              {
+                "Ref": "RestApiGatewayAEAE89B5",
+              },
+              "/test-invoke-stage/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "RestApiGatewayproxyE99E9051": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "RestApiGatewayAEAE89B5",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
+    },
+    "RestApiGatewayproxyOPTIONS299CB6ED": {
+      "Properties": {
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "Integration": {
+          "IntegrationResponses": [
+            {
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+              },
+              "StatusCode": "204",
+            },
+          ],
+          "RequestTemplates": {
+            "application/json": "{ statusCode: 200 }",
+          },
+          "Type": "MOCK",
+        },
+        "MethodResponses": [
+          {
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+            "StatusCode": "204",
+          },
+        ],
+        "ResourceId": {
+          "Ref": "RestApiGatewayproxyE99E9051",
+        },
+        "RestApiId": {
+          "Ref": "RestApiGatewayAEAE89B5",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+  },
+}
+`;
